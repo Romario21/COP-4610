@@ -110,6 +110,10 @@ struct thread {
 
 	/* add more here as needed */
 
+  struct lock *lockT;
+  struct wchan *wchanT;
+  struct cv *cvT;
+
 };
 
 /*
