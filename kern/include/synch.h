@@ -75,7 +75,7 @@ void V(struct semaphore *);
 struct lock {
   // recitation: flag, wait c, spin l, thread pointer?
   char *lk_name;
-  volatile pid_t flag;
+  volatile unsigned flag;
   struct wchan *wchanL;
   struct spinlock spinL;
   

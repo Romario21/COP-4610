@@ -171,7 +171,8 @@ lock_create(const char *name)
 
   //deal with spinlock
   spinlock_init(&lock->spinL);
-  lock->flag = 0;  //ask
+  //  lock->flag = 0;  //ask
+  lock->flag = initial_count;
 
   //------------------------------------------------------
 
@@ -209,11 +210,11 @@ lock_acquire(struct lock *lock)
   spinlock_acquire(&lock->spinL);
 
   while(lock->flag == 0){
-
+    wchan_sleep(lock->wchanL, &lock->spinL);
   }
 
-  KASSERT(!lo);
-  lock->flag = 1;
+  KASSERT(lock->flag > 0);
+  lock->flag--;
 
   spinlock_release(&lock->spinL);
   
@@ -249,7 +250,10 @@ lock_do_i_hold(struct lock *lock)
   // Write this
 
   //---------------------- ADDED---------------------------
+  if(lock->flag ==)
+    return true;
 
+  return false;
   
   
   //------------------------------------------------------
@@ -293,7 +297,7 @@ cv_create(const char *name)
   }
 
   spinlock_init(&cv->spinCV);
-  //cv->flag = 0;
+  cv->flag = 0;
   
 
   //------------------------------------------------------
@@ -326,6 +330,12 @@ cv_wait(struct cv *cv, struct lock *lock)
   KASSERT(cv != NULL);
   KASSERT(lock != NULL);
 
+  if(lock_do_i_hold(lock)){
+    spinlock_acquire(&cv->spinCV);
+    lock_release(lock);
+    wchan_sleep(cv->wchanCV);
+    spinlock_release(&cv->spinCV);
+  }
 
   
   //------------------------------------------------------
@@ -345,6 +355,10 @@ cv_signal(struct cv *cv, struct lock *lock)
   KASSERT(cv != NULL);
   KASSERT(lock != NULL);
 
+  if(lock_do_i_hold(lock)){
+    wchan_wakeone(cv->wchanCV);
+  }
+
   
   //--------------------------------------------------
 
@@ -360,6 +374,10 @@ cv_broadcast(struct cv *cv, struct lock *lock)
   //---------------------- ADDED---------------------------
   KASSERT(cv != NULL);
   KASSERT(lock != NULL);
+
+  if(lock_do_i_hold(lock)){
+    wchan_wakeall(cv->wchanCV);
+  }
 
   //-------------------------------------------------------
   
