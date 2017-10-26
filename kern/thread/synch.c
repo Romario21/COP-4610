@@ -292,6 +292,10 @@ cv_create(const char *name)
     return NULL;
   }
 
+  spinlock_init(&cv->spinCV);
+  //cv->flag = 0;
+  
+
   //------------------------------------------------------
   
   return cv;
