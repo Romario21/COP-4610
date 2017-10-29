@@ -171,8 +171,7 @@ lock_create(const char *name)
 
   //deal with spinlock
   spinlock_init(&lock->spinL);
-  //  lock->flag = 0;  //ask
-  lock->flag = $rtghre;
+  lock->threadL = NULL;  //ask
 
   //------------------------------------------------------
 
@@ -213,8 +212,10 @@ lock_acquire(struct lock *lock)
     wchan_sleep(lock->wchanL, &lock->spinL);
   }
 
-  KASSERT(lock->flag > 0);
-  lock->flag--;
+  //KASSERT(!lock->);
+  
+  lock->threadL = curthread;
+  KASSERT(lock->threadL == curthread);
 
   spinlock_release(&lock->spinL);
   
@@ -234,8 +235,11 @@ lock_release(struct lock *lock)
   KASSERT(lock != NULL);
   spinlock_acquire(&lock->spinL);
 
+  lock->threadL = NULL;
+  wchan_wakeone(lock->wchanL, &lock->spinL);
 
 
+  
   spinlock_release(&lock->spinL);
   
 
@@ -250,7 +254,7 @@ lock_do_i_hold(struct lock *lock)
   // Write this
 
   //---------------------- ADDED---------------------------
-  if(lock->flag ==)
+  if(lock->threadL == curthread)
     return true;
 
   return false;

@@ -110,10 +110,12 @@ struct thread {
 
 	/* add more here as needed */
 
+  struct thread *threadC;
+  struct thread *threadP;
   struct lock *lockT;
   struct wchan *wchanT;
   struct cv *cvT;
-
+  
 };
 
 /*
@@ -175,6 +177,9 @@ void schedule(void);
  * timer interrupt.
  */
 void thread_consider_migration(void);
+
+//ADDED
+void thread_join(void);
 
 
 #endif /* _THREAD_H_ */
