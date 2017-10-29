@@ -172,7 +172,7 @@ lock_create(const char *name)
   //deal with spinlock
   spinlock_init(&lock->spinL);
   //  lock->flag = 0;  //ask
-  lock->flag = initial_count;
+  lock->flag = $rtghre;
 
   //------------------------------------------------------
 
