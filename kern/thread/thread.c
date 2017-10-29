@@ -1215,3 +1215,11 @@ interprocessor_interrupt(void)
 	curcpu->c_ipi_pending = 0;
 	spinlock_release(&curcpu->c_ipi_lock);
 }
+
+//----------------------------ADDED-------------------------------
+
+void
+thread_join(void)
+{
+
+}

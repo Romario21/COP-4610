@@ -301,7 +301,7 @@ cv_create(const char *name)
   }
 
   spinlock_init(&cv->spinCV);
-  cv->flag = 0;
+  //cv->flag = 0;
   
 
   //------------------------------------------------------
@@ -317,7 +317,8 @@ cv_destroy(struct cv *cv)
   // add stuff here as needed
 
   //---------------------- ADDED--------------------------
-  
+
+  spinlock_cleanup(&cv->spinCV);
   wchan_destroy(cv->wchanCV);
   
   //-----------------------------------------------------
@@ -332,13 +333,15 @@ cv_wait(struct cv *cv, struct lock *lock)
   // Write this
   //---------------------- ADDED---------------------------
   KASSERT(cv != NULL);
-  KASSERT(lock != NULL);
+  KASSERT(lock != NULL); //checking
 
   if(lock_do_i_hold(lock)){
     spinlock_acquire(&cv->spinCV);
     lock_release(lock);
-    wchan_sleep(cv->wchanCV);
+    
+    wchan_sleep(cv->wchanCV, &cv->spinCV);
     spinlock_release(&cv->spinCV);
+    lock_acquire(lock);
   }
 
   
@@ -359,9 +362,13 @@ cv_signal(struct cv *cv, struct lock *lock)
   KASSERT(cv != NULL);
   KASSERT(lock != NULL);
 
+  spinlock_acquire(&cv->spinCV);
+  
   if(lock_do_i_hold(lock)){
-    wchan_wakeone(cv->wchanCV);
+    wchan_wakeone(cv->wchanCV, &cv->spinCV);
   }
+
+  spinlock_release(&cv->spinCV);
 
   
   //--------------------------------------------------
@@ -379,9 +386,14 @@ cv_broadcast(struct cv *cv, struct lock *lock)
   KASSERT(cv != NULL);
   KASSERT(lock != NULL);
 
+  spinlock_acquire(&cv->spinCV);
+ 
+
   if(lock_do_i_hold(lock)){
-    wchan_wakeall(cv->wchanCV);
+    wchan_wakeall(cv->wchanCV, &cv->spinCV);
   }
+
+  spinlock_release(&cv->spinCV);
 
   //-------------------------------------------------------
   
