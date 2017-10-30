@@ -145,19 +145,51 @@ threadtest2(int nargs, char **args)
 	return 0;
 }
 
+static void printout(void *junk, unsigned long num)
+{
+  int ch = num;
+  void(temp);
+
+  kprintf("\nT");
+  kprintf("\nE");
+  kprintf("\nS");
+  kprintf("\nT");
+  kprintf("\nI");
+  kprintf("\nN");
+  kprintf("\nG");
+  i = i + 1;
+
+  V(tsem);
+}
+
 int
 threadtest4(int nargs, char **args)
 {
   (void)nargs;
   (void)args;
-
   init_sem();
   kprintf("Starting thread test 4...\n");
-  runthreads(0);
-  kprintf("\nThread test 2 done.\n");
-  
 
-  //  thread_join();
+  char name[16];
+  int  i= 0 , results;
+
+  //for(i = 0; i <NTHREADS; i++){
+    snprintf(name, sizeof(name), "threadtest%d", i);
+    results = thread_fork(name, NULL, testing, NULL, i);
+    if(result){
+      panic("threadtest: thread_fork failed %s)\n", strerror(results));
+    }
+    
+    // }
+
+  /*
+  for(i =0; i < NTHREADS; i++){
+    P(tsem);
+  }
+  */
+  
+  thread_join();
+  kprintf("\nThread test 4 done.\n");
 
   return 0;
   

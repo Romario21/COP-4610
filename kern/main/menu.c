@@ -596,7 +596,7 @@ static struct {
 	{ "tt1",	threadtest },
 	{ "tt2",	threadtest2 },
 	{ "tt3",	threadtest3 },
-	{ "tt4",        threadtest4 },
+	{ "tt4",	threadtest4 },
 	{ "sy1",	semtest },
 
 	/* synchronization assignment tests */
