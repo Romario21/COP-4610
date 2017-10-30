@@ -153,10 +153,11 @@ threadtest4(int nargs, char **args)
 
   init_sem();
   kprintf("Starting thread test 4...\n");
-
+  runthreads(0);
+  kprintf("\nThread test 2 done.\n");
   
 
-  thread_join();
+  //  thread_join();
 
   return 0;
   

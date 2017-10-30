@@ -150,7 +150,11 @@ thread_create(const char *name)
 	thread->t_did_reserve_buffers = false;
 
 	/* If you add to struct thread, be sure to initialize here */
-
+	thread->threadC = NULL;
+	thread->lockT = NULL;
+	thread->cvT = NULL;
+	thread->wchanT = NULL;
+	
 	return thread;
 }
 
@@ -544,6 +548,15 @@ thread_fork(const char *name,
 	/* Set up the switchframe so entrypoint() gets called */
 	switchframe_init(newthread, entrypoint, data1, data2);
 
+	//-------------------ADDED------------------------
+	curthread->threadC = newthread;
+
+	curthread->lockT = lock_create("Thread Lock");
+	curthread->cvT = cv_create("Thread CV");
+	curthread->wchanT = wchan_create("Thread Wchan");
+
+	//---------------------------------------------------
+
 	/* Lock the current cpu's run queue and make the new thread runnable */
 	thread_make_runnable(newthread, false);
 
@@ -787,6 +800,16 @@ thread_exit(void)
 
 	KASSERT(cur->t_did_reserve_buffers == false);
 
+	//---------------ADDED----------------------
+	if(cur->threadC != NULL){
+	  lock_aquire(cur->threadC->lockT);
+	  cur->threadC = NULL;
+	  cv_signal(cur->cvT, cur->lockT);
+	  lock_release(cur->threadC);
+	}
+	//------------------------------------------
+
+	
 	/*
 	 * Detach from our process. You might need to move this action
 	 * around, depending on how your wait/exit works.
@@ -1219,7 +1242,14 @@ interprocessor_interrupt(void)
 //----------------------------ADDED-------------------------------
 
 void
-thread_join(void)
+thread_join()
 {
+  //KASSERT(threadJ != NULL);
+  lock_aquire(curthread->lockT);
 
+  while(curthread->threadC != NULL){
+    cv_wait(curthread->cvT, curthread->lockT);
+  }
+
+  lock_release(threadJ->lockT);
 }
