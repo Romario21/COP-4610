@@ -78,6 +78,7 @@ struct lock {
   volatile struct thread *threadL;
   struct wchan *wchanL;
   struct spinlock spinL;
+  volatile bool boolL;
   
   // add what you need here
   // (don't forget to mark things volatile as needed)

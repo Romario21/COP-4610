@@ -172,6 +172,7 @@ lock_create(const char *name)
   //deal with spinlock
   spinlock_init(&lock->spinL);
   lock->threadL = NULL;  //ask
+  lock->boolL = false;
 
   //------------------------------------------------------
 
@@ -208,13 +209,16 @@ lock_acquire(struct lock *lock)
 
   spinlock_acquire(&lock->spinL);
 
-  while(lock->flag == 0){
+  while(&lock->boolL){
     wchan_sleep(lock->wchanL, &lock->spinL);
   }
 
-  //KASSERT(!lock->);
+  KASSERT(!lock->boolL);
+  lock->boolL = true;
   
   lock->threadL = curthread;
+
+  KASSERT(lock->boolL);
   KASSERT(lock->threadL == curthread);
 
   spinlock_release(&lock->spinL);
@@ -235,7 +239,11 @@ lock_release(struct lock *lock)
   KASSERT(lock != NULL);
   spinlock_acquire(&lock->spinL);
 
+  KASSERT(lock->boolL);
+  
+  lock->boolL = false;
   lock->threadL = NULL;
+  
   wchan_wakeone(lock->wchanL, &lock->spinL);
 
 

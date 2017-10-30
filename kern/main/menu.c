@@ -52,7 +52,7 @@
 
 #define _PATH_SHELL "/bin/sh"
 
-#define MAXMENUARGS  16
+#define MAXMENUARGS  17
 
 ////////////////////////////////////////////////////////////
 //
